@@ -1,0 +1,102 @@
+import heapq
+
+# --------------------------------------------------
+# Graph
+# --------------------------------------------------
+
+graph = {
+    "S": {"A": 3, "C": 2},
+    "A": {"B": 4},
+    "B": {"D": 5},
+    "C": {"D": 2},
+    "D": {}
+}
+
+# Heuristic values
+heuristic = {
+    "S": 4,
+    "A": 7,
+    "B": 5,
+    "C": 2,
+    "D": 0
+}
+
+
+# --------------------------------------------------
+# A* Search Algorithm
+# --------------------------------------------------
+
+def a_star(graph, heuristic, start, goal):
+
+    # Priority queue: (f, g, node, path)
+    open_list = [(heuristic[start], 0, start, [start])]
+
+    # Store the lowest known cost to each node
+    g_cost = {start: 0}
+
+    explored = set()
+
+    while open_list:
+
+        f, g, current, path = heapq.heappop(open_list)
+
+        # Skip if this node was already explored
+        if current in explored:
+            continue
+
+        explored.add(current)
+
+        print(
+            "Exploring:",
+            current,
+            "g(n) =", g,
+            "h(n) =", heuristic[current],
+            "f(n) =", f
+        )
+
+        # Goal reached
+        if current == goal:
+            return path, g, explored
+
+        # Explore neighbors
+        for neighbor, cost in graph[current].items():
+
+            new_g = g + cost
+            new_f = new_g + heuristic[neighbor]
+
+            if neighbor not in g_cost or new_g < g_cost[neighbor]:
+                g_cost[neighbor] = new_g
+
+                heapq.heappush(
+                    open_list,
+                    (new_f, new_g, neighbor, path + [neighbor])
+                )
+
+    return None, None, explored
+
+
+# --------------------------------------------------
+# Main Program
+# --------------------------------------------------
+
+start = "S"
+goal = "D"
+
+path, total_cost, explored = a_star(
+    graph,
+    heuristic,
+    start,
+    goal
+)
+
+print("\n-----------------------------")
+print("A* SEARCH RESULT")
+print("-----------------------------")
+
+print("Nodes explored:", " -> ".join(explored))
+
+if path:
+    print("Final path:", " -> ".join(path))
+    print("Total cost:", total_cost)
+else:
+    print("No path found.")
